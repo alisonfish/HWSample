@@ -1,4 +1,5 @@
-﻿using HWSample.Models;
+﻿using HWSample.ActionFilters;
+using HWSample.Models;
 using System;
 using System.Data;
 using System.Data.Entity;
@@ -8,6 +9,7 @@ using System.Web.Mvc;
 
 namespace HWSample.Controllers
 {
+    [ActionTime]
     public class 客戶銀行資訊Controller : Controller
     {
         //private 客戶資料Entities db = new 客戶資料Entities();

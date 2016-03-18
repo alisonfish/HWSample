@@ -26,6 +26,7 @@ namespace HWSample.Models
         {
             return this.All().FirstOrDefault(p => p.Id == id);
         }
+        
     }
 
 	public  interface I客戶資料Repository : IRepository<客戶資料>

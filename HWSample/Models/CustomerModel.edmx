@@ -4,7 +4,14 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="客戶資料Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="客戶資料Model.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="客戶分類">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" Nullable="false" />
+          <Property Name="分類名稱" Type="nvarchar(max)" />
+        </EntityType>
         <EntityType Name="客戶聯絡人">
           <Key>
             <PropertyRef Name="Id" />
@@ -30,6 +37,9 @@
           <Property Name="地址" Type="nvarchar" MaxLength="100" />
           <Property Name="Email" Type="nvarchar" MaxLength="250" />
           <Property Name="IsDeleted" Type="bit" Nullable="false" />
+          <Property Name="帳號" Type="nvarchar" MaxLength="256" />
+          <Property Name="密碼" Type="nvarchar(max)" />
+          <Property Name="分類Id" Type="int" />
         </EntityType>
         <EntityType Name="客戶銀行資訊">
           <Key>
@@ -68,6 +78,18 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_客戶資料_客戶分類">
+          <End Role="客戶分類" Type="Self.客戶分類" Multiplicity="0..1" />
+          <End Role="客戶資料" Type="Self.客戶資料" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="客戶分類">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="客戶資料">
+              <PropertyRef Name="分類Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_客戶銀行資訊_客戶資料">
           <End Role="客戶資料" Type="Self.客戶資料" Multiplicity="1" />
           <End Role="客戶銀行資訊" Type="Self.客戶銀行資訊" Multiplicity="*" />
@@ -81,6 +103,7 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="客戶資料ModelStoreContainer">
+          <EntitySet Name="客戶分類" EntityType="Self.客戶分類" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="客戶聯絡人" EntityType="Self.客戶聯絡人" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="客戶資料" EntityType="Self.客戶資料" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="客戶銀行資訊" EntityType="Self.客戶銀行資訊" Schema="dbo" store:Type="Tables" />
@@ -96,15 +119,28 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
             <End Role="客戶資料" EntitySet="客戶資料" />
             <End Role="客戶聯絡人" EntitySet="客戶聯絡人" />
           </AssociationSet>
+          <AssociationSet Name="FK_客戶資料_客戶分類" Association="Self.FK_客戶資料_客戶分類">
+            <End Role="客戶分類" EntitySet="客戶分類" />
+            <End Role="客戶資料" EntitySet="客戶資料" />
+          </AssociationSet>
           <AssociationSet Name="FK_客戶銀行資訊_客戶資料" Association="Self.FK_客戶銀行資訊_客戶資料">
             <End Role="客戶資料" EntitySet="客戶資料" />
             <End Role="客戶銀行資訊" EntitySet="客戶銀行資訊" />
           </AssociationSet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="客戶資料Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="客戶分類">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" />
+          <Property Name="分類名稱" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="客戶資料" Relationship="Self.FK_客戶資料_客戶分類" FromRole="客戶分類" ToRole="客戶資料" />
+        </EntityType>
         <EntityType Name="客戶聯絡人">
           <Key>
             <PropertyRef Name="Id" />
@@ -131,6 +167,10 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
           <Property Name="地址" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="Email" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="IsDeleted" Type="Boolean" Nullable="false" />
+          <Property Name="帳號" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="密碼" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="分類Id" Type="Int32" />
+          <NavigationProperty Name="客戶分類" Relationship="Self.FK_客戶資料_客戶分類" FromRole="客戶資料" ToRole="客戶分類" />
           <NavigationProperty Name="客戶聯絡人" Relationship="Self.FK_客戶聯絡人_客戶資料" FromRole="客戶資料" ToRole="客戶聯絡人" />
           <NavigationProperty Name="客戶銀行資訊" Relationship="Self.FK_客戶銀行資訊_客戶資料" FromRole="客戶資料" ToRole="客戶銀行資訊" />
         </EntityType>
@@ -148,6 +188,28 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
           <Property Name="IsDeleted" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="客戶資料" Relationship="Self.FK_客戶銀行資訊_客戶資料" FromRole="客戶銀行資訊" ToRole="客戶資料" />
         </EntityType>
+        <EntityType Name="vwCustomerList">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="客戶名稱" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="客戶名稱" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="聯絡人數量" Type="Int32" />
+          <Property Name="銀行帳戶數量" Type="Int32" />
+        </EntityType>
+        <Association Name="FK_客戶資料_客戶分類">
+          <End Role="客戶分類" Type="Self.客戶分類" Multiplicity="0..1" />
+          <End Role="客戶資料" Type="Self.客戶資料" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="客戶分類">
+              <PropertyRef Name="Id" />
+            </Principal>
+            <Dependent Role="客戶資料">
+              <PropertyRef Name="分類Id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_客戶聯絡人_客戶資料">
           <End Role="客戶資料" Type="Self.客戶資料" Multiplicity="1" />
           <End Role="客戶聯絡人" Type="Self.客戶聯絡人" Multiplicity="*" />
@@ -173,9 +235,15 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="客戶資料Entities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="客戶分類" EntityType="Self.客戶分類" />
           <EntitySet Name="客戶聯絡人" EntityType="Self.客戶聯絡人" />
           <EntitySet Name="客戶資料" EntityType="Self.客戶資料" />
           <EntitySet Name="客戶銀行資訊" EntityType="Self.客戶銀行資訊" />
+          <EntitySet Name="vwCustomerList" EntityType="Self.vwCustomerList" />
+          <AssociationSet Name="FK_客戶資料_客戶分類" Association="Self.FK_客戶資料_客戶分類">
+            <End Role="客戶分類" EntitySet="客戶分類" />
+            <End Role="客戶資料" EntitySet="客戶資料" />
+          </AssociationSet>
           <AssociationSet Name="FK_客戶聯絡人_客戶資料" Association="Self.FK_客戶聯絡人_客戶資料">
             <End Role="客戶資料" EntitySet="客戶資料" />
             <End Role="客戶聯絡人" EntitySet="客戶聯絡人" />
@@ -184,24 +252,21 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
             <End Role="客戶資料" EntitySet="客戶資料" />
             <End Role="客戶銀行資訊" EntitySet="客戶銀行資訊" />
           </AssociationSet>
-          <EntitySet Name="vwCustomerList" EntityType="客戶資料Model.vwCustomerList" />
         </EntityContainer>
-        <EntityType Name="vwCustomerList">
-          <Key>
-            <PropertyRef Name="Id" />
-            <PropertyRef Name="客戶名稱" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="客戶名稱" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="聯絡人數量" Type="Int32" />
-          <Property Name="銀行帳戶數量" Type="Int32" />
-        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="客戶資料ModelStoreContainer" CdmEntityContainer="客戶資料Entities">
+          <EntitySetMapping Name="客戶分類">
+            <EntityTypeMapping TypeName="客戶資料Model.客戶分類">
+              <MappingFragment StoreEntitySet="客戶分類">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="分類名稱" ColumnName="分類名稱" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="客戶聯絡人">
             <EntityTypeMapping TypeName="客戶資料Model.客戶聯絡人">
               <MappingFragment StoreEntitySet="客戶聯絡人">
@@ -227,6 +292,9 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
                 <ScalarProperty Name="地址" ColumnName="地址" />
                 <ScalarProperty Name="Email" ColumnName="Email" />
                 <ScalarProperty Name="IsDeleted" ColumnName="IsDeleted" />
+                <ScalarProperty Name="帳號" ColumnName="帳號" />
+                <ScalarProperty Name="密碼" ColumnName="密碼" />
+                <ScalarProperty Name="分類Id" ColumnName="分類Id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -247,10 +315,10 @@ warning 6002: The table/view 'C:\USERS\S2503\DOCUMENTS\PRACTICESAMPLE\HWSAMPLE\H
           <EntitySetMapping Name="vwCustomerList">
             <EntityTypeMapping TypeName="客戶資料Model.vwCustomerList">
               <MappingFragment StoreEntitySet="vwCustomerList">
-                <ScalarProperty Name="銀行帳戶數量" ColumnName="銀行帳戶數量" />
-                <ScalarProperty Name="聯絡人數量" ColumnName="聯絡人數量" />
-                <ScalarProperty Name="客戶名稱" ColumnName="客戶名稱" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="客戶名稱" ColumnName="客戶名稱" />
+                <ScalarProperty Name="聯絡人數量" ColumnName="聯絡人數量" />
+                <ScalarProperty Name="銀行帳戶數量" ColumnName="銀行帳戶數量" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

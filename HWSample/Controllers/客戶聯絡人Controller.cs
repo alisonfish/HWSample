@@ -1,6 +1,8 @@
-﻿using HWSample.Models;
+﻿using HWSample.ActionFilters;
+using HWSample.Models;
+using HWSample.ViewModel;
 using System;
-using System.Data;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -8,10 +10,11 @@ using System.Web.Mvc;
 
 namespace HWSample.Controllers
 {
+    [ActionTime]
     public class 客戶聯絡人Controller : Controller
     {
         //private 客戶資料Entities entity = new 客戶資料Entities();
-        客戶聯絡人Repository repository = RepositoryHelper.Get客戶聯絡人Repository();
+        private 客戶聯絡人Repository repository = RepositoryHelper.Get客戶聯絡人Repository();
 
         public ActionResult Index(string keyword)
         {
@@ -19,10 +22,33 @@ namespace HWSample.Controllers
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                data = data.Where(p => p.姓名.Contains(keyword));
+                //data = data.Where(p => p.職稱.Contains(keyword));
+                data = repository.FindBy職稱(keyword);
             }
 
-            return View(data.ToList());
+            IEnumerable<ContactIndexViewModel> vm = data.Select(ConvertToVM);
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public ActionResult Index(IList<ContactViewModel> model)
+        {
+            if (ModelState.IsValid)
+            {
+                foreach (var item in model)
+                {
+                    var contact = repository.Find(item.Id);
+                    contact.職稱 = item.Title;
+                    contact.手機 = item.CellPhone;
+                    contact.電話 = item.Phone;
+                }
+
+                repository.UnitOfWork.Commit();
+                return RedirectToAction("Index");
+            }
+
+            return View(repository.All());
         }
 
         // GET: 客戶聯絡人/Details/5
@@ -138,6 +164,21 @@ namespace HWSample.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private ContactIndexViewModel ConvertToVM(客戶聯絡人 entity)
+        {
+            ContactIndexViewModel dao = new ContactIndexViewModel
+            {
+                Id = entity.Id,
+                CustomerId = entity.客戶Id,
+                Title = entity.職稱,
+                Email = entity.Email,
+                CellPhone = entity.手機,
+                Phone = entity.電話,
+                Customer = entity.客戶資料
+            };
+            return dao;
         }
     }
 }

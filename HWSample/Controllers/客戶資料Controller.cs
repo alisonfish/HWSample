@@ -1,17 +1,21 @@
-﻿using HWSample.Models;
+﻿using HWSample.ActionFilters;
+using HWSample.Models;
 using System;
 using System.Data;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 
 namespace HWSample.Controllers
 {
+    [ActionTime]
     public class 客戶資料Controller : Controller
     {
-        //private 客戶資料Entities db = new 客戶資料Entities();
-        客戶資料Repository repository = RepositoryHelper.Get客戶資料Repository();
+        private 客戶資料Entities entity = new 客戶資料Entities();
+        private 客戶資料Repository repository = RepositoryHelper.Get客戶資料Repository();
+        private 客戶分類Repository categoryRepo = RepositoryHelper.Get客戶分類Repository();
 
         public ActionResult CustomerRelatedList()
         {
@@ -33,6 +37,8 @@ namespace HWSample.Controllers
         }
 
         // GET: 客戶資料/Details/5
+        [HandleError(ExceptionType = typeof(ArgumentException), View = "ErrorArgument")]
+        [HandleError(ExceptionType = typeof(SqlException), View = "ErrorSql")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -52,6 +58,7 @@ namespace HWSample.Controllers
         // GET: 客戶資料/Create
         public ActionResult Create()
         {
+            ViewData["CustomerCategory"] = new SelectList(categoryRepo.All(), "Id", "分類名稱");
             return View();
         }
 
@@ -60,7 +67,7 @@ namespace HWSample.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email,IsDeleted")] 客戶資料 客戶資料)
+        public ActionResult Create([Bind(Include = "Id,客戶名稱,統一編號,電話,傳真,地址,Email,IsDeleted,分類Id")] 客戶資料 客戶資料)
         {
             if (ModelState.IsValid)
             {
@@ -74,6 +81,8 @@ namespace HWSample.Controllers
         }
 
         // GET: 客戶資料/Edit/5
+        [HandleError(ExceptionType = typeof(ArgumentException), View = "ErrorArgument")]
+        [HandleError(ExceptionType = typeof(SqlException), View = "ErrorSql")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -106,6 +115,8 @@ namespace HWSample.Controllers
         }
 
         // GET: 客戶資料/Delete/5
+        [HandleError(ExceptionType = typeof(ArgumentException), View = "ErrorArgument")]
+        [HandleError(ExceptionType = typeof(SqlException), View = "ErrorSql")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
